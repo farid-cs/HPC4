@@ -1,8 +1,10 @@
 CC = cc
 CFLAGS = -std=c99 -pedantic -Wall -Wextra
-LDFLAGS = -lm
 
 all: midpoint
+
+midpoint: midpoint.o
+	${CC} -o $@ midpoint.o -lm
 
 dist:
 	mkdir -p Farid-Farajli-hpc-assignment4
@@ -12,6 +14,6 @@ dist:
 	rm -rf Farid-Farajli-hpc-assignment4
 
 clean:
-	rm -rf midpoint Farid-Farajli-hpc-assignment4.tar.gz
+	rm -rf *.o midpoint Farid-Farajli-hpc-assignment4.tar.gz
 
 .PHONY: all clean dist
