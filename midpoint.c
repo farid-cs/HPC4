@@ -27,7 +27,7 @@ midpoint_rule(double a, double b, size_t steps)
 	double step_size, midpoint, area = 0;
 
 	step_size = (b - a) / steps;
-	midpoint = a + step_size / 2;
+	midpoint = a + step_size / 2.0;
 
 	for (; steps; steps--) {
 		area += integrand(midpoint) * step_size;
