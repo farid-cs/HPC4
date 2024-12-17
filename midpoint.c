@@ -38,7 +38,6 @@ midpoint_rule(double a, double b, size_t steps)
 	return area;
 }
 
-
 int
 main(void)
 {
