@@ -14,7 +14,6 @@
 
 #define PI 3.14159265358979323846
 #define FILE_NAME "data.txt"
-#define MIDPOINT(a, b) ((a + b) / 2)
 
 double
 integrand(double x)
