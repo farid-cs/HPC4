@@ -8,12 +8,11 @@
  * Group: 604.22E
  */
 
+#include <mpi.h>
 #include <math.h>
 #include <stdio.h>
-#include <time.h>
 
 #define PI 3.14159265358979323846
-#define FILE_NAME "data.txt"
 
 double
 integrand(double x)
@@ -24,7 +23,7 @@ integrand(double x)
 double
 midpoint_rule(double a, double b, size_t steps)
 {
-	double step_size, midpoint, area = 0;
+	double step_size, midpoint, area = 0.0;
 
 	step_size = (b - a) / steps;
 	midpoint = a + step_size / 2.0;
@@ -38,29 +37,31 @@ midpoint_rule(double a, double b, size_t steps)
 }
 
 int
-main(void)
+main(int argc, char *argv[])
 {
-	FILE *file = fopen(FILE_NAME, "w");
+	size_t steps = 1000000, local_steps;
+	double a = 0.0, b = 1.0;
+	double local_a, local_b;
+	double local_area, area;
+	double step_size;
+	int rank, size;
 
-	if (file == NULL) {
-		printf("Can't open file: '%s'\n", FILE_NAME);
-		return 1;
-	}
+	MPI_Init(&argc, &argv);
+	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+	MPI_Comm_size(MPI_COMM_WORLD, &size);
 
-	printf("Midpoint rule gives us: %lf\n", midpoint_rule(0.0, 1.0, 100));
+	local_steps = steps / size;
+	step_size = (b - a) / steps;
+	local_a = a + rank * local_steps * step_size;
+	local_b = local_a + local_steps * step_size;
 
-	for (size_t i = 1; i != 41; i++) {
-		long steps;
-		clock_t start, end;
-		double elapsed_time;
+	local_area = midpoint_rule(local_a, local_b, local_steps);
 
-		steps = i * 10000000;
-		start = clock();
-		midpoint_rule(0.0, 1.0, steps);
-		end = clock();
-		elapsed_time = (double)(end - start) / CLOCKS_PER_SEC;
+	MPI_Reduce(&local_area, &area, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
 
-		fprintf(file, "%zu %lf\n", steps, elapsed_time);
-	}
+	if (rank == 0)
+		printf("Estimated integral: %lf\n", area);
+
+	MPI_Finalize();
 	return 0;
 }
